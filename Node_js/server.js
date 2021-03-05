@@ -36,21 +36,22 @@ app.get('/', function(request,response){
   }
   else
   {
-    response.sendFile(path.join(__dirname + "/public/login.html"));
+    //response.sendFile(path.join(__dirname + "/public/login.html"));
+    response.sendFile(__dirname + "/public/login.html");
   }
 });
 
 app.get('/qr', function(request,response){
-  var longString = 'This is a long string that will become a QR code';
+  var longString = 'There once was a man from Nantucket';
   var shortString = hash('md5').update(longString).digest('hex');
   console.log(shortString);
-  QRCode.toFile(path.join(__dirname + "/public/qr/" + shortString + ".png"),
+  QRCode.toFile(__dirname + "/public/qr/" + shortString + ".png",
     longString,
     {width:200, height: 200},
     err => {
       if (err) throw err
     });
-    response.sendFile(path.join(__dirname + "/public/home.html"));
+  	response.sendFile(__dirname + "/public/qr.html");
 });
 
 app.get('/home',function(request,response){

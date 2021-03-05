@@ -9,7 +9,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 RUN npm install && \
-npm install @mysql/xdevapi --save --save-exact
+npm install @mysql/xdevapi --save --save-exact && \
+npm install qrcode -- save
 # If you are building your code for production
 # RUN npm ci --only=production
 
