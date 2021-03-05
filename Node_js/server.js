@@ -7,6 +7,8 @@ var http = require('http');
 const mysqlx = require('@mysql/xdevapi');
 var path = require('path');
 var bodyParser = require('body-parser');
+var QRCode = require('qrcode');
+var hash = require('crypto').createHash;
 
 // Constants
 const MY_PORT = 8080;
@@ -36,6 +38,19 @@ app.get('/', function(request,response){
   {
     response.sendFile(path.join(__dirname + "/public/login.html"));
   }
+});
+
+app.get('/qr', function(request,response){
+  var longString = 'This is a long string that will become a QR code';
+  var shortString = hash('md5').update(longString).digest('hex');
+  console.log(shortString);
+  QRCode.toFile(path.join(__dirname + "/public/qr/" + shortString + ".png"),
+    longString,
+    {width:200, height: 200},
+    err => {
+      if (err) throw err
+    });
+    response.sendFile(path.join(__dirname + "/public/home.html"));
 });
 
 app.get('/home',function(request,response){
