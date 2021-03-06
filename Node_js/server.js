@@ -27,6 +27,7 @@ app.use(session({
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
+app.set('view engine', 'ejs');
 
 // Handle GET requests (usually page connections)
 app.get('/', function(request,response){
@@ -41,6 +42,7 @@ app.get('/', function(request,response){
   }
 });
 
+// QR test
 app.get('/qr', function(request,response){
   var longString = 'There once was a man from Nantucket';
   var shortString = hash('md5').update(longString).digest('hex');
@@ -52,6 +54,13 @@ app.get('/qr', function(request,response){
       if (err) throw err
     });
   	response.sendFile(__dirname + "/public/qr.html");
+});
+
+// EJS test
+app.get('/ejs', function(request,response){
+  var qr_data = [{name:'qrcode_1',hash:'d53d0acd4e362324b53118c157c46cd8'},
+  	{name:'qrcode_2',hash:'d53d0acd4e362324b53118c157c46cd8'}];
+  response.render(__dirname + '/public/generate.ejs', {qr_data: qr_data});
 });
 
 app.get('/home',function(request,response){

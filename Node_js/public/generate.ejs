@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>QR Generation</title>
+  <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+  <div>
+    <h1>Generate QR codes</h1>
+    <div class="container">
+    <% qr_data.forEach(function(entry) { %>
+      <table class="qr">
+        <tr>
+          <td style="text-align:center"><%=entry.name%></td>
+        </tr>
+        <tr>
+          <td align="center"><img src="/qr/<%=entry.hash%>.png">
+        </tr>
+      </table>
+    <% }); %>
+  </div>
+  </div>
+</body>
+</html>

@@ -5,3 +5,8 @@ body {
 h1 {
   color: blue;
 }
+
+table.qr {
+	float:left;
+	width:210px;
+}
