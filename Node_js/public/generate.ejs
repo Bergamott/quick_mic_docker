@@ -7,6 +7,17 @@
 <body>
   <div>
     <h1>Generate QR codes</h1>
+
+    <form action="generate" method="POST">
+      Field A:
+      <input type="text" name="field_a" placeholder="blah" required>
+      Field B:
+      <input type="text" name="field_b" placeholder="blah" required>
+      Field C:
+      <input type="text" name="field_c" placeholder="blah" required>
+      <input type="submit" value="Generate">
+    </form>
+
     <div class="container">
     <% qr_data.forEach(function(entry) { %>
       <table class="qr">

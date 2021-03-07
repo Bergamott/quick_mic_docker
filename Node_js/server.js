@@ -29,6 +29,10 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');
 
+// Set up variables
+
+var qr_data = [];
+
 // Handle GET requests (usually page connections)
 app.get('/', function(request,response){
   if (request.session.loggedin)
@@ -58,10 +62,13 @@ app.get('/qr', function(request,response){
 
 // EJS test
 app.get('/ejs', function(request,response){
-  var qr_data = [{name:'qrcode_1',hash:'d53d0acd4e362324b53118c157c46cd8'},
-  	{name:'qrcode_2',hash:'d53d0acd4e362324b53118c157c46cd8'}];
+
+
   response.render(__dirname + '/public/generate.ejs', {qr_data: qr_data});
 });
+
+// Generate POST
+
 
 app.get('/home',function(request,response){
   if (request.session.loggedin){
@@ -116,6 +123,23 @@ app.post('/auth', function(request,response){
 app.post('/logout', function(request,response){
   request.session.loggedin = false;
   response.redirect('/');
+});
+
+// Generate new QR code from received parameters
+app.post('/generate', function(request,response){
+
+  var title = request.body.field_a + '_' + request.body.field_b + '_' + request.body.field_c;
+  var hashedTitle = hash('md5').update(title).digest('hex');
+  QRCode.toFile(__dirname + "/public/qr/" + hashedTitle + ".png",
+      title,
+    {width:200, height: 200},
+    err => {
+      if (err) throw err
+    });
+
+  qr_data.push({name:title, hash:hashedTitle});
+
+  response.redirect('/ejs');
 });
 
 // Start listening for connections
