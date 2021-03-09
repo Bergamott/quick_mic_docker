@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Logged in</title>
+  <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+  <div>
+    <h1>Start page</h1>
+    You are logged in as <b><%=username %></b>.
+    <br><br>
+    <a href="/start">Start or finish runs</a>
+    <br><br>
+    Local runs:
+    <br><br>
+    <form action="logout" method="POST">
+      <input type="submit" value="Logout">
+    </form>
+  </div>
+</body>
+</html>
