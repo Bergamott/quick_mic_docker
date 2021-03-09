@@ -6,18 +6,31 @@
 </head>
 <body>
   <div>
-    <h1>Generate QR codes</h1>
+    <h1>Currently active runs</h1>
 
-    <form action="generate" method="POST">
-      Field A:
-      <input type="text" name="field_a" placeholder="blah" required>
-      Field B:
-      <input type="text" name="field_b" placeholder="blah" required>
-      Field C:
-      <input type="text" name="field_c" placeholder="blah" required>
-      <input type="submit" value="Generate">
+    Enter data
+    <form action="start_run" method="POST">
+    <table>
+      <tr>
+        <td>Date</td>
+        <td>Test #</td>
+        <td>Strain</td>
+        <td>Source</td>
+        <td>Description</td>
+        <td>Instrument</td>
+      </tr>
+      <tr>
+        <td><input type="text" name="date" required size="10"></td>
+        <td><input type="text" name="number" required size="5"></td>
+        <td><input type="text" name="strain" required size="7"></td>
+        <td><input type="text" name="source" required size="8"></td>
+        <td><input type="text" name="description" required size="20"></td>
+        <td><input type="text" name="instrument" required size="10"></td>
+      </tr>
+    </table>
+    <input type="submit" value="Start new run">
     </form>
-
+    QR codes:
     <div class="container">
     <% qr_data.forEach(function(entry) { %>
       <table class="qr">
@@ -27,9 +40,14 @@
         <tr>
           <td align="center"><img src="/qr/<%=entry.hash%>.png">
         </tr>
+        <tr>
+          <td style="text-align:center"><a href="/finish?run_name=<%=entry.name%>">Finish</a></td>
+        </tr>
       </table>
     <% }); %>
   </div>
   </div>
+  <br><br>
+  <a href="/home">Back to home screen</a>
 </body>
 </html>
