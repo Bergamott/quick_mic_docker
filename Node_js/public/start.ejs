@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>QR Generation</title>
+  <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+  <div>
+    <h1>Currently active runs</h1>
+
+    Enter data
+    <form action="start_run" method="POST">
+    <table>
+      <tr>
+        <td>Date</td>
+        <td>Test #</td>
+        <td>Strain</td>
+        <td>Source</td>
+        <td>Description</td>
+        <td>Instrument</td>
+      </tr>
+      <tr>
+        <td><input type="text" name="date" value="<%=current_date %>" required size="10"></td>
+        <td><input type="text" name="number" required size="5"></td>
+        <td><input type="text" name="strain" required size="7"></td>
+        <td><input type="text" name="source" required size="8"></td>
+        <td><input type="text" name="description" required size="20"></td>
+        <td><input type="text" name="instrument" required size="10"></td>
+      </tr>
+    </table>
+    <input type="submit" value="Start new run">
+    </form>
+    <br>
+    QR codes:
+    <div class="container">
+    <% qr_data.forEach(function(entry) { %>
+      <table class="qr">
+        <tr>
+          <td style="text-align:center"><%=entry.name%></td>
+        </tr>
+        <tr>
+          <td align="center"><img src="/qr/<%=entry.hash%>.png">
+        </tr>
+        <tr>
+          <td style="text-align:center"><a href="/finish_run?run_name=<%=entry.name%>">Finish</a></td>
+        </tr>
+      </table>
+    <% }); %>
+  </div>
+  </div>
+  <br>
+  <div style="clear:both;">
+    <a href="/home">Back to home screen</a>
+  </div>
+</body>
+</html>

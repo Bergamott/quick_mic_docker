@@ -32,10 +32,12 @@ app.set('view engine', 'ejs');
 
 // Set up variables
 
-var qr_data = [];
 var admins = [];
+var active_runs = {};
 
 // Handle GET requests (usually page connections)
+
+// Start page
 app.get('/', function(request,response){
   if (request.session.loggedin)
   {
@@ -62,27 +64,37 @@ app.get('/qr', function(request,response){
   	response.sendFile(__dirname + "/public/qr.html");
 });
 
-// EJS test
+// Page for starting or finishing new runs
 app.get('/start', function(request,response){
 
+  var qr_data = active_runs[request.session.username];
+  if (!qr_data)
+    qr_data = [];
 
-  response.render(__dirname + '/public/generate.ejs', {qr_data: qr_data});
+  // Prepopulate with today's date
+  var d = new Date();
+  var date_string = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
+  response.render(__dirname + '/public/start.ejs', {qr_data: qr_data, current_date: date_string});
 });
 
-
-app.get('/finish', function(request,response){
+// Request finish run
+app.get('/finish_run', function(request,response){
   var run_name = request.query.run_name;
   var findIndex = -1;
-  for (var i=0;i<qr_data.length;i++)
+  var qr_data = active_runs[request.session.username];
+  if (qr_data)
   {
-    if (qr_data[i].name == run_name)
+    for (var i=0;i<qr_data.length;i++)
     {
-      findIndex = i;
+      if (qr_data[i].name == run_name)
+      {
+        findIndex = i;
+      }
     }
   }
   if (findIndex >= 0)
   {
-    // Remove image file and update page
+    // Remove .png file and update page
     fs.unlink(__dirname + "/public/qr/" + qr_data[findIndex].hash + ".png",(err) =>
       {
         if (err) {
@@ -92,15 +104,21 @@ app.get('/finish', function(request,response){
           console.log("Image file deleted successfully");
         };
       });
-  qr_data.splice(findIndex,1);
+    qr_data.splice(findIndex,1);
+    if (qr_data.length > 0)
+    {
+      active_runs[request.session.username] = qr_data;
+    }
+    else
+    {
+      delete active_runs[request.session.username];
+    }
   }
-  response.redirect('/ejs');
+  response.redirect('/start');
 });
 
 
-// Generate POST
-
-
+// Home screen
 app.get('/home',function(request,response){
   if (request.session.loggedin){
     if (admins.indexOf(request.session.username) >= 0)
@@ -128,7 +146,9 @@ app.get('/home',function(request,response){
     else
     {
       // Ordinary user
-      response.render(__dirname + '/public/home.ejs', {username: request.session.username});
+      var run_list = [{name: 'aaa_bbb_ccc_ddd'}, {name: 'eee_fff_ggg_hhh'}];
+      response.render(__dirname + '/public/home.ejs', {username: request.session.username,
+        runs: run_list});
     }
   }
   else
@@ -137,11 +157,17 @@ app.get('/home',function(request,response){
   }
 });
 
+app.get('/strain_list', function(request,response){
+  response.render(__dirname + '/public/strain_list.ejs', {data: "dummy"});
+});
+
 app.get('/loginerror', function(request,response){
   response.sendFile(path.join(__dirname + "/public/loginerror.html"));
 });
 
 // Handle POST requests
+
+// Login with name and password
 app.post('/auth', function(request,response){
   var username = request.body.username;
   var password = request.body.password;
@@ -203,6 +229,11 @@ app.post('/auth', function(request,response){
             {
               admins.push(username);
             }
+            // Check if any runs are active
+            if (entries[0].runs)
+            {
+              active_runs[username] = entries[0].runs;
+            }
             response.redirect('/home');
           }
         });
@@ -223,10 +254,11 @@ app.post('/logout', function(request,response){
   response.redirect('/');
 });
 
-// Generate new QR code from received parameters
-app.post('/generate', function(request,response){
+// Start a new run and generate QR code .png file
+app.post('/start_run', function(request,response){
 
-  var title = request.body.field_a + '_' + request.body.field_b + '_' + request.body.field_c;
+  var title = request.body.date + '_' + request.body.number + '-' + request.body.strain +
+    '_' + request.body.source + request.body.description + '_' + request.body.instrument.toUpperCase();
   var hashedTitle = hash('md5').update(title).digest('hex');
   QRCode.toFile(__dirname + "/public/qr/" + hashedTitle + ".png",
       title,
@@ -234,8 +266,11 @@ app.post('/generate', function(request,response){
     err => {
       if (err) throw err
     });
-
+  var qr_data = active_runs[request.session.username];
+  if (!qr_data)
+    qr_data = [];
   qr_data.push({name:title, hash:hashedTitle});
+  active_runs[request.session.username] = qr_data;
 
   response.redirect('/start');
 });
